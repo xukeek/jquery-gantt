@@ -179,53 +179,42 @@ export default {
     const el = $(this.element);
     const templateEvents = $('.gantt-events', el);
 
-    data.forEach(function (element) {
-      const itemStartDate = new Date(element.startdate);
-
+    data.forEach(function (memberEvents) {
       const templateEventRow = $('<div>', { class: 'gantt-event-row', width: this.totalWidth });
-      const templateEvent = $('<div>', { class: 'gantt-event' });
+      memberEvents.forEach(function (element) {
+        const itemStartDate = new Date(element.startdate);
 
-      const tourWidth = (parseInt(element.minNight, 10) + 1) * this.config.cellWidth;
-      const remDay = this.dateDiffInDays(this.config.startDate, itemStartDate);
+        const templateEvent = $('<div>', { class: 'gantt-event' });
 
-      const tooltipData = $.extend(element.tooltipData, { price: element.price });
+        const tourWidth = (parseInt(element.minNight, 10) + 1) * this.config.cellWidth;
+        const remDay = this.dateDiffInDays(this.config.startDate, itemStartDate);
 
-      let tourType = '';
-      if (element.type === 'Tur') {
-        tourType = 'tourFly';
-      } else if (element.type === 'TurBus') {
-        tourType = 'tourBus';
-      } else {
-        tourType = 'cruise';
-      }
+        const tooltipData = $.extend(element.tooltipData, { price: element.price });
 
-      const title = `${element.minNight} Gece`;
+        let tourType = '';
+        if (element.type === 'Tur') {
+          tourType = 'tourFly';
+        } else if (element.type === 'TurBus') {
+          tourType = 'tourBus';
+        } else {
+          tourType = 'cruise';
+        }
 
-      const eventBlock = $('<a>', {
-        class: this.format('gantt-event-block {0}', tourType),
-        width: `${tourWidth}px`,
-        href: `/${element.url}`,
-        target: '_blank',
-      }).text(title).css('line-height', `${this.config.cellHeight - 28}px`).data('tooltip', this.tooltipView(tooltipData));
+        const title = `${element.title}`;
 
-      const eventIcon = $(`<div class="gantt-event-icon"><div class="${tourType}"></div></div>`);
+        const eventBlock = $('<a>', {
+          class: this.format('gantt-event-block {0}', tourType),
+          width: `${tourWidth}px`,
+          href: `/${element.url}`,
+          target: '_blank',
+        }).text(title).css('line-height', `${this.config.cellHeight - 28}px`).data('tooltip', this.tooltipView(tooltipData));
 
-      const eventPrice = $('<div>', {
-        class: 'gantt-event-price',
-      }).text(`${element.price.original.price} ${element.price.original.priceType}`);
+        const left = (remDay * this.config.cellWidth) + this.gridDefaults.eventsWidth;
 
-      const eventDesc = $('<div>', {
-        class: 'gantt-event-desc',
-      }).text(element.title);
-
-      const left = (remDay * this.config.cellWidth) + this.gridDefaults.eventsWidth;
-
-      templateEventRow.append(templateEvent.css('left', left)
-        .append(eventBlock)
-        .append(eventIcon)
-        .append(eventPrice)
-        .append(eventDesc))
-        .css('height', this.config.cellHeight);
+        templateEventRow.append(templateEvent.css('left', left)
+          .append(eventBlock))
+          .css('height', this.config.cellHeight);
+      }, this);
 
       templateEvents.append(templateEventRow);
     }, this);

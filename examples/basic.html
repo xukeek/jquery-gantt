@@ -15,12 +15,18 @@
 
   <script src="http://code.jquery.com/jquery-latest.min.js"></script>
   <script src="../dist/jquery-gantt.js"></script>
+  <script src="../l10n/jquery-gantt.l10n.zh.js"></script>
   <script src="js/demo-events.js"></script>
   <script>
     $('#demo').gantt({
-      data: eventsData,
+      ranges: [["2016-07-02", "2016-07-05"]],
+      data: [eventsData2, eventsData, eventsData2, eventsData, eventsData2, eventsData, eventsData2, eventsData, eventsData2, eventsData, eventsData2, eventsData, eventsData2, eventsData,
+            eventsData2, eventsData, eventsData2, eventsData, eventsData2, eventsData, eventsData2, eventsData, eventsData2, eventsData, eventsData2, eventsData, eventsData2, eventsData,
+      eventsData2, eventsData, eventsData2, eventsData, eventsData2, eventsData, eventsData2, eventsData, eventsData2, eventsData, eventsData2, eventsData, eventsData2, eventsData],
       startDate: new Date('2016-07-01'),
       endDate: new Date('2016-10-01'),
+      language: 'zh',
+      cellWidth: 24
     });
   </script>
 </body>

@@ -16,20 +16,15 @@ var eventsData = [{
         }
     },
     "tooltipData": {
-        "title": "Zaporojie Turu",
-        "image": "http://cdn.gezinomi.com//zaporojie-turu-1126--1-29.06.2016101219-b4.jpg",
-        "desc": ["Atlas Global Havayolları Tarifeli Seferi ile ", " Türkçe Rehber ", " Vizesiz ", " 3 Gece - 4 Gün ", " Zaporojie (3)"],
-        "dates": {
-            "begin": "21 Temmuz 2016 Perşembe",
-            "end": "24 Temmuz 2016 Pazar"
-        },
-        "url": null
+      "memberName": "xxx",
+      "inGroupTime": "ss",
+      "outGroupTime": "ss"
     },
     "dateorder": "\/Date(1469048400000)\/"
 }, {
     "title": "Amsterdam İlkbahar , Yaz Turu ",
-    "startdate": "2016/07/21",
-    "enddate": "2016/07/24",
+    "startdate": "2016/07/25",
+    "enddate": "2016/07/29",
     "url": "http://www.gezinomi.com/amsterdam-ilkbahar-yaz-turu",
     "type": "Tur",
     "minNight": "3",
@@ -87,8 +82,8 @@ var eventsData2 = [{
 },
 {
     "title": "Celestyal Nefeli ile Yunan Adaları Atina 3 Gece, Uçaklı Paket",
-    "startdate": "2016/07/21",
-    "enddate": "2016/07/24",
+    "startdate": "2016/08/25",
+    "enddate": "2016/08/29",
     "url": "http://www.gezinomi.com/celestyal-nefeli-ile-yunan-adalari-atina-3-gece-ucakli-paket",
     "type": "TurBus",
     "minNight": "3",

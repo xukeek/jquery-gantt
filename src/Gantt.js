@@ -233,6 +233,23 @@ class Gantt {
     }
   }
 
+  isTimeInRange(year, month, day) {
+    const ranges = this.config.ranges;
+    let formatter = '{0}';
+    formatter += (month >= 10 ? '-{1}' : '-0{1}');
+    formatter += (day >= 10 ? '-{2}' : '-0{2}');
+    const thisDate = new Date(this.format(formatter, year, month, day));
+    for (let i = 0; i < ranges.length; i += 1) {
+      const begin = ranges[i][0];
+      const end = ranges[i][1];
+      if (thisDate >= new Date(begin) && thisDate <= new Date(end)) {
+        console.info(this.format('{0}-{1}-{2}', year, month, day));
+        return true;
+      }
+    }
+    return false;
+  }
+
   renderHeader(num) {
     const templateHeader = $('<div>', { class: 'gantt-header' });
     const templateHeaderMonths = $('<div>', { class: 'gantt-header-months' });
@@ -245,14 +262,16 @@ class Gantt {
     const startDate = new Date(this.config.startDate.getTime());
 
     for (let i = 0; i <= num; i += 1) {
-      const templateHeaderMonth = $('<div>', { class: 'gantt-header-month' });
-      const templateHeaderDay = $('<div>', { class: 'gantt-header-day' });
-      const templateHeaderDayMin = $('<div>', { class: 'gantt-header-day-min' });
-
       const weekOfday = startDate.getDay();
       const day = startDate.getDate();
       const month = startDate.getMonth() + 1;
       const year = startDate.getFullYear();
+      const isInRange = this.isTimeInRange(year, month, day);
+
+      const templateHeaderMonth = $('<div>', { class: 'gantt-header-month' }).toggleClass('range', isInRange);
+      const templateHeaderDay = $('<div>', { class: 'gantt-header-day' }).toggleClass('range', isInRange);
+      const templateHeaderDayMin = $('<div>', { class: 'gantt-header-day-min' }).toggleClass('range', isInRange);
+
       let monthWidth = this.daysInMonth(month, year) * this.config.cellWidth;
 
       const dayTemplate = $(templateHeaderDay).text(day).css('width', this.config.cellWidth);
@@ -284,7 +303,7 @@ class Gantt {
         }
 
         const monthName = this.config.lang.monthNames[month - 1];
-        const monthTemplate = $(templateHeaderMonth).text(`${monthName} ${year}`).css({ width: monthWidth });
+        const monthTemplate = $(templateHeaderMonth).text(`${year} ${monthName}`).css({ width: monthWidth });
         $(templateHeaderMonths).append(monthTemplate);
       }
       startDate.setDate(startDate.getDate() + 1);
@@ -362,54 +381,43 @@ class Gantt {
 
     const templateEvents = $('<div>', { class: 'gantt-events', width: totalWidth });
 
-    data.forEach(function (el) {
-      const itemStartDate = new Date(el.startdate);
-
+    data.forEach((rowEvents) => {
       const templateEventRow = $('<div>', { class: 'gantt-event-row', width: this.totalWidth });
-      const templateEvent = $('<div>', { class: 'gantt-event' });
+      rowEvents.forEach((el) => {
+        const itemStartDate = new Date(el.startdate);
 
-      const tourWidth = (parseInt(el.minNight, 10) + 1) * this.config.cellWidth;
-      const remDay = this.dateDiffInDays(this.config.startDate, itemStartDate);
+        const templateEvent = $('<div>', { class: 'gantt-event' });
 
-      const tooltipData = $.extend(el.tooltipData, { price: el.price });
+        const tourWidth = (parseInt(el.minNight, 10) + 1) * this.config.cellWidth;
+        const remDay = this.dateDiffInDays(this.config.startDate, itemStartDate);
 
-      let tourType = '';
-      if (el.type === 'Tur') {
-        tourType = 'tourFly';
-      } else if (el.type === 'TurBus') {
-        tourType = 'tourBus';
-      } else {
-        tourType = 'cruise';
-      }
+        const tooltipData = $.extend(el.tooltipData, { price: el.price });
 
-      const title = `${el.minNight} Gece`;
+        let tourType = '';
+        if (el.type === 'Tur') {
+          tourType = 'tourFly';
+        } else if (el.type === 'TurBus') {
+          tourType = 'tourBus';
+        } else {
+          tourType = 'cruise';
+        }
 
-      const eventBlock = $('<a>', {
-        class: `gantt-event-block ${tourType}`,
-        width: `${tourWidth}px`,
-        href: `${el.url}`,
-        target: '_blank',
-      }).text(title).css('line-height', `${this.config.cellHeight - 28}px`).data('tooltip', this.tooltipView(tooltipData));
+        const title = `${el.title}`;
 
-      const eventIcon = $(`<div class="gantt-event-icon"><div class="${tourType}"></div></div>`);
+        const eventBlock = $('<a>', {
+          class: `gantt-event-block ${tourType}`,
+          width: `${tourWidth}px`,
+          href: `${el.url}`,
+          target: '_blank',
+        }).text(title).css('line-height', `${this.config.cellHeight - 28}px`).data('tooltip', this.tooltipView(tooltipData));
 
-      const eventPrice = $('<div>', {
-        class: 'gantt-event-price',
-      }).text(`${el.price.original.price} ${el.price.original.priceType}`);
+        const left = ((remDay) * this.config.cellWidth);
 
-      const eventDesc = $('<div>', {
-        class: 'gantt-event-desc',
-      }).text(el.title);
-
-      const left = ((remDay) * this.config.cellWidth);
-
-      templateEventRow
-        .append(templateEvent.css('left', left)
-          .append(eventBlock)
-          .append(eventIcon)
-          .append(eventPrice)
-          .append(eventDesc))
-        .css('height', this.config.cellHeight);
+        templateEventRow
+          .append(templateEvent.css('left', left)
+            .append(eventBlock))
+          .css('height', this.config.cellHeight);
+      }, this);
 
       templateEvents.append(templateEventRow);
     }, this);
@@ -464,23 +472,14 @@ class Gantt {
     const template = '' +
       '<div class="gantt-tooltip">' +
       '    <div class="tooltip-content">' +
-      '        <img src="{0}" alt="tooltip-img">' +
       '        <span class="title">{1}</span>' +
       '        <div class="desc">' +
-      '            {2} <br> {3} <br> {4}' +
-      '        </div>' +
-      '    </div>' +
-      '    <div class="tooltip-action">' +
-      '        <span>Gidiş: <span class="desc">{5}</span></span><br>' +
-      '        <span>Dönüş: <span class="desc">{6}</span></span>' +
-      '        <div class="price">' +
-      '            <div class="tl">{7}</div>' +
-      '            <div class="eur">{8}</div>' +
+      '            入组时间: {2} <br> 出组时间: {3} <br>' +
       '        </div>' +
       '    </div>' +
       '</div>';
 
-    const html = this.format(template, data.image, data.title, data.desc[0], data.desc[1], data.desc[2], data.dates.begin, data.dates.end, this.format('{0} {1}', data.price.converted.price, data.price.converted.priceType), this.format('{0} {1}', data.price.original.price, data.price.original.priceType));
+    const html = this.format(template, data.memberName, data.inGroupTime, data.outGroupTime);
     return html;
   }
 
